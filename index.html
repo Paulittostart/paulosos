@@ -12,7 +12,7 @@
     /* --- Configurações Globais --- */
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #020617;
+      background-color: #000000; /* Fundo base Preto Absoluto */
       color: #ffffff;
       overflow-x: hidden;
       margin: 0;
@@ -20,27 +20,7 @@
     }
 
     /* --- Fundo: Orbes (Base) --- */
-    /* Otimizado com translate3d para aceleração de hardware */
-    @keyframes drift-1 {
-      0% { transform: translate3d(0, 0, 0) scale(1); }
-      33% { transform: translate3d(30px, -50px, 0) scale(1.1); }
-      66% { transform: translate3d(-20px, 20px, 0) scale(0.9); }
-      100% { transform: translate3d(0, 0, 0) scale(1); }
-    }
-
-    @keyframes drift-2 {
-      0% { transform: translate3d(0, 0, 0) scale(1); }
-      33% { transform: translate3d(-30px, 30px, 0) scale(1.2); }
-      66% { transform: translate3d(30px, -10px, 0) scale(0.8); }
-      100% { transform: translate3d(0, 0, 0) scale(1); }
-    }
-
-    @keyframes pulse-glow {
-      0%, 100% { opacity: 0.5; transform: translate3d(-50%, -50%, 0) scale(1); }
-      50% { opacity: 0.8; transform: translate3d(-50%, -50%, 0) scale(1.1); }
-    }
-
-    .orb-container {
+    .orb-wrapper {
       position: fixed;
       inset: 0;
       width: 100%;
@@ -48,37 +28,82 @@
       overflow: hidden;
       z-index: 0;
       pointer-events: none;
-      background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-      will-change: transform; /* Otimização para o parallax JS */
+      /* Gradiente ajustado: Azul Profundo (Slate 950) no centro indo para Preto nas bordas */
+      background: radial-gradient(circle at center, #020617 0%, #000000 100%);
+    }
+
+    /* Camadas individuais para Parallax Controlado via JS */
+    .parallax-layer {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      will-change: transform;
     }
 
     .orb {
       position: absolute;
       border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.5;
+      filter: blur(90px); /* Blur aumentado para fusão */
+      opacity: 0.6;
+      /* Color Dodge faz as cores "acenderem" quando se cruzam */
+      mix-blend-mode: color-dodge; 
       will-change: transform;
     }
 
-    /* Tempos ajustados para movimento mais orgânico e suave */
+    /* 
+      NOVAS ANIMAÇÕES COMPLEXAS (Não circulares) 
+      Usam porcentagens quebradas para evitar sensação de loop robótico
+    */
+    @keyframes organic-float-1 {
+      0% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(10%, -10%) scale(1.1); }
+      50% { transform: translate(-5%, 15%) scale(0.9); }
+      75% { transform: translate(-15%, -5%) scale(1.05); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+
+    @keyframes organic-float-2 {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      33% { transform: translate(-10%, 10%) scale(1.2) rotate(45deg); }
+      66% { transform: translate(15%, 5%) scale(0.8) rotate(-45deg); }
+      100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    }
+
+    @keyframes organic-float-3 {
+      0% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.3); }
+      100% { opacity: 0.4; transform: scale(1); }
+    }
+
+    /* Configuração dos Orbes Específicos */
     .orb-1 {
-      top: -10%; left: -10%; width: 60vw; height: 60vw;
-      background: #6d28d9; /* Roxo profundo */
-      animation: drift-1 25s ease-in-out infinite;
+      top: -20%; left: -10%; width: 70vw; height: 70vw;
+      background: #4c1d95; /* Roxo mais intenso */
+      animation: organic-float-1 20s ease-in-out infinite;
     }
 
     .orb-2 {
-      bottom: -20%; right: -10%; width: 70vw; height: 70vw;
-      background: #0e7490; /* Ciano escuro */
-      animation: drift-2 30s ease-in-out infinite reverse;
+      bottom: -20%; right: -10%; width: 80vw; height: 80vw;
+      background: #1e3a8a; /* Azul escuro profundo */
+      animation: organic-float-2 25s ease-in-out infinite reverse;
     }
 
     .orb-3 {
-      top: 50%; left: 50%; width: 40vw; height: 40vw;
-      transform: translate3d(-50%, -50%, 0); /* Centralizado inicialmente */
-      background: #2563eb; /* Azul royal */
-      animation: pulse-glow 12s ease-in-out infinite;
-      mix-blend-mode: screen;
+      top: 40%; left: 40%; width: 50vw; height: 50vw;
+      margin-left: -25vw; margin-top: -25vw;
+      background: #0891b2; /* Ciano vibrante */
+      animation: organic-float-1 18s ease-in-out infinite alternate;
+      opacity: 0.4;
+    }
+
+    /* --- Canvas de Pintura (Rastro do Mouse) --- */
+    #paint-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1; /* Acima dos orbes, abaixo do conteúdo */
+      pointer-events: none;
+      mix-blend-mode: screen; /* Faz a "tinta" brilhar sobre o fundo escuro */
     }
 
     /* --- Fundo: Partículas (Stars) --- */
@@ -87,7 +112,7 @@
       inset: 0;
       z-index: 1;
       pointer-events: none;
-      will-change: transform; /* Otimização para o parallax JS */
+      will-change: transform; 
     }
 
     .particle {
@@ -95,23 +120,20 @@
       background: white;
       border-radius: 50%;
       opacity: 0;
-      animation: floatUp linear infinite;
-      will-change: transform, opacity;
+      animation: twinkle 4s ease-in-out infinite;
     }
 
-    @keyframes floatUp {
-      0% { transform: translate3d(0, 100vh, 0) scale(0); opacity: 0; }
-      10% { opacity: var(--target-opacity); }
-      90% { opacity: var(--target-opacity); }
-      100% { transform: translate3d(0, -10vh, 0) scale(0); opacity: 0; }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: var(--target-opacity); transform: scale(1); }
     }
 
-    /* Noise Overlay - Reduzido opacity para melhor performance visual em telas escuras */
+    /* Noise Overlay */
     .noise-overlay {
       position: fixed;
       inset: 0;
       z-index: 2;
-      opacity: 0.03; 
+      opacity: 0.04; 
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
       pointer-events: none;
     }
@@ -120,11 +142,11 @@
     
     /* Texto com Shimmer */
     .shimmer-text {
-      background: linear-gradient(90deg, #ffffff 0%, #e2e8f0 40%, #ffffff 50%, #e2e8f0 60%, #ffffff 100%);
+      background: linear-gradient(90deg, #ffffff 0%, #94a3b8 40%, #ffffff 50%, #94a3b8 60%, #ffffff 100%);
       background-size: 200% auto;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: shine 5s linear infinite; /* Mais suave */
+      animation: shine 8s linear infinite;
     }
     @keyframes shine {
       to { background-position: 200% center; }
@@ -155,10 +177,10 @@
     }
 
     .glass-card {
-      background: rgba(15, 23, 42, 0.5);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
       transform-style: preserve-3d;
       transition: transform 0.1s ease-out; 
@@ -172,16 +194,16 @@
     }
     
     .glass-card:hover {
-      background: rgba(30, 41, 59, 0.7);
-      border-color: rgba(99, 102, 241, 0.4);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.2);
+      background: rgba(30, 41, 59, 0.8);
+      border-color: rgba(99, 102, 241, 0.5);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(99, 102, 241, 0.15);
     }
     
     /* Glow do Mouse nos Cards */
     .glow-spot {
       position: absolute;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(500px circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.1), transparent 40%);
+      background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.06), transparent 40%);
       opacity: 0;
       transition: opacity 0.3s;
       pointer-events: none;
@@ -193,20 +215,32 @@
 </head>
 <body class="antialiased selection:bg-indigo-500 selection:text-white">
 
-  <!-- CAMADA 0: BACKGROUND ORBS -->
-  <div class="orb-container">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+  <!-- CAMADA 0: BACKGROUND ORBS (Com Layers de Parallax) -->
+  <div class="orb-wrapper">
+    <!-- Camada Traseira (Move devagar) -->
+    <div class="parallax-layer layer-back">
+      <div class="orb orb-1"></div>
+    </div>
+    <!-- Camada Média (Move velocidade média) -->
+    <div class="parallax-layer layer-mid">
+      <div class="orb orb-2"></div>
+    </div>
+    <!-- Camada Frontal (Move rápido) -->
+    <div class="parallax-layer layer-front">
+      <div class="orb orb-3"></div>
+    </div>
   </div>
   
-  <!-- CAMADA 1: PARTICLES -->
+  <!-- CAMADA 1: CANVAS DE PINTURA (Rastro do Mouse) -->
+  <canvas id="paint-canvas"></canvas>
+
+  <!-- CAMADA 2: PARTICLES -->
   <div id="particles-js" class="particles-container"></div>
 
-  <!-- CAMADA 2: NOISE -->
+  <!-- CAMADA 3: NOISE -->
   <div class="noise-overlay"></div>
 
-  <!-- CAMADA 3: CONTEÚDO (Navbar) -->
+  <!-- CAMADA 4: CONTEÚDO (Navbar) -->
   <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 py-6 border-b border-transparent animate-fade-up" id="navbar">
     <div class="container mx-auto px-6 flex items-center justify-between">
       <div class="flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
@@ -219,7 +253,7 @@
     </div>
   </nav>
 
-  <!-- CAMADA 3: CONTEÚDO (Hero) -->
+  <!-- CAMADA 4: CONTEÚDO (Hero) -->
   <main class="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 text-center pt-20">
     
     <!-- Badge Animado -->
@@ -236,7 +270,7 @@
       <span class="shimmer-text block">Paulo Nova</span>
     </h1>
     
-    <!-- Descrição (LEGIBILIDADE MELHORADA) -->
+    <!-- Descrição -->
     <div class="animate-fade-up delay-200 mb-16 px-4">
       <div class="max-w-3xl mx-auto px-8 py-6 bg-slate-950/50 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl transform hover:scale-105 transition-transform duration-500 cursor-default">
         <p class="text-lg md:text-2xl text-slate-200 font-medium leading-relaxed">
@@ -252,7 +286,7 @@
     <div class="w-full max-w-5xl mx-auto pb-24">
       <div class="flex flex-col items-center mb-10 animate-fade-up delay-300">
         <div class="h-px w-full max-w-[200px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-50"></div>
-        <span class="text-slate-500 text-xs font-mono mt-3 uppercase tracking-[0.2em]">Projetos Selecionados</span>
+        <span class="text-indigo-200 text-xs font-mono mt-3 uppercase tracking-[0.2em] drop-shadow-md">Projetos Selecionados</span>
       </div>
 
       <div class="grid gap-8 md:grid-cols-2 px-4" id="cards-container">
@@ -264,7 +298,7 @@
 
   <!-- Footer -->
   <footer class="relative z-10 py-6 border-t border-white/5 text-center">
-    <p class="text-slate-600 text-xs uppercase tracking-widest animate-fade-up delay-500">&copy; 2025 Paulo Nova.</p>
+    <p class="text-slate-400 text-xs uppercase tracking-widest animate-fade-up delay-500">&copy; 2025 Paulo Nova.</p>
   </footer>
 
   <!-- JAVASCRIPT -->
@@ -346,25 +380,26 @@
 
     // --- Gerador de Partículas ---
     const particlesContainer = document.getElementById('particles-js');
-    const particleCount = 30; // Número de partículas
+    const particleCount = 120; // Quantidade aumentada significativamente
 
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
       particle.classList.add('particle');
       
-      // Randomizar propriedades
-      const size = Math.random() * 3 + 1; // 1px a 4px
-      const left = Math.random() * 100; // 0 a 100vw
-      const duration = Math.random() * 15 + 10; // 10s a 25s
-      const delay = Math.random() * 10; // 0s a 10s
-      const opacity = Math.random() * 0.5 + 0.1;
+      const size = Math.random() * 3 + 1;
+      const left = Math.random() * 100;
+      const top = Math.random() * 100; // Espalhar verticalmente
+      const duration = Math.random() * 3 + 2; // Twinkle mais rápido
+      const delay = Math.random() * 5;
+      const opacity = Math.random() * 0.7 + 0.2;
 
       particle.style.width = `${size}px`;
       particle.style.height = `${size}px`;
       particle.style.left = `${left}%`;
+      particle.style.top = `${top}%`; // Usar Top fixo inicial
       particle.style.setProperty('--target-opacity', opacity);
       particle.style.animationDuration = `${duration}s`;
-      particle.style.animationDelay = `-${delay}s`; // Começar já animado
+      particle.style.animationDelay = `${delay}s`;
 
       particlesContainer.appendChild(particle);
     }
@@ -382,46 +417,137 @@
       }
     });
 
-    // --- Mouse Parallax System ---
-    // Cria um movimento suave do fundo baseado na posição do mouse
-    let currentX = 0;
-    let currentY = 0;
-    let targetX = 0;
-    let targetY = 0;
+    // --- ADVANCED PARALLAX SYSTEM (Mouse + Scroll) ---
+    // Este sistema agora combina movimento do mouse com scroll vertical
     
-    const orbsContainer = document.querySelector('.orb-container');
-    const starsContainer = document.getElementById('particles-js');
+    const layerBack = document.querySelector('.layer-back');
+    const layerMid = document.querySelector('.layer-mid');
+    const layerFront = document.querySelector('.layer-front');
+    const particlesLayer = document.querySelector('.particles-container');
 
+    let mouseX = 0, mouseY = 0;
+    let scrollY = 0;
+    
+    // Posições suavizadas
+    let smoothX = 0, smoothY = 0, smoothScroll = 0;
+
+    // Captura movimento do mouse
     document.addEventListener('mousemove', (e) => {
-      // Normalizar posição do mouse (-1 a 1) e multiplicar pela intensidade do movimento
-      targetX = (e.clientX / window.innerWidth - 0.5) * 30; // 30px de deslocamento max
-      targetY = (e.clientY / window.innerHeight - 0.5) * 30;
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 100; // -50 a 50
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 100;
+    });
+
+    // Captura Scroll
+    document.addEventListener('scroll', () => {
+      scrollY = window.scrollY;
     });
 
     function animateParallax() {
-      // Interpolação Linear (Lerp) para suavizar o movimento
-      // Aproxima current de target por 5% a cada frame
-      currentX += (targetX - currentX) * 0.05; 
-      currentY += (targetY - currentY) * 0.05;
+      // Suavização (Lerp)
+      smoothX += (mouseX - smoothX) * 0.05;
+      smoothY += (mouseY - smoothY) * 0.05;
+      smoothScroll += (scrollY - smoothScroll) * 0.05;
+
+      // --- Aplicar Transformações ---
       
-      // Movimenta as camadas com velocidades diferentes para efeito de profundidade
-      if(orbsContainer) {
-        // Orbes movem devagar (Fundo distante)
-        orbsContainer.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+      // 1. Layer Traseira (Roxo): Move devagar, segue o scroll levemente
+      // Scroll Effect: Move-se 10% da velocidade do scroll (efeito de longe)
+      if (layerBack) {
+        layerBack.style.transform = `translate3d(${smoothX * 0.2}px, ${smoothY * 0.2 + smoothScroll * 0.1}px, 0)`;
       }
-      
-      if(starsContainer) {
-        // Estrelas movem mais rápido (Plano médio)
-        starsContainer.style.transform = `translate3d(${currentX * -1.5}px, ${currentY * -1.5}px, 0)`;
+
+      // 2. Layer Média (Azul Escuro): Move moderado
+      // Scroll Effect: Move-se 20% (plano médio)
+      if (layerMid) {
+        layerMid.style.transform = `translate3d(${smoothX * -0.4}px, ${smoothY * -0.4 - smoothScroll * 0.2}px, 0)`;
       }
-      
+
+      // 3. Layer Frontal (Ciano): Move rápido e inverso
+      // Scroll Effect: Move-se -15% (parece estar mais perto ou flutuando contra o fluxo)
+      if (layerFront) {
+        layerFront.style.transform = `translate3d(${smoothX * 0.6}px, ${smoothY * 0.6 + smoothScroll * 0.15}px, 0)`;
+      }
+
+      // 4. Partículas: Movem mais rápido que tudo
+      if (particlesLayer) {
+        particlesLayer.style.transform = `translate3d(${smoothX * -0.8}px, ${smoothY * -0.8 - smoothScroll * 0.4}px, 0)`;
+      }
+
       requestAnimationFrame(animateParallax);
     }
 
-    // Iniciar loop de animação
     animateParallax();
+
+    // --- PAINT / TINTA EFFECT LOGIC ---
+    const paintCanvas = document.getElementById('paint-canvas');
+    const ctx = paintCanvas.getContext('2d');
+    let paintWidth, paintHeight;
+    let pMouse = { x: 0, y: 0 }; // Posição anterior do mouse
+    let hue = 0; // Cor inicial (HSL)
+
+    function resizePaint() {
+      paintWidth = paintCanvas.width = window.innerWidth;
+      paintHeight = paintCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizePaint);
+    resizePaint();
+
+    // Inicializar posição para evitar linha reta do canto
+    window.addEventListener('mousemove', (e) => {
+      if (pMouse.x === 0 && pMouse.y === 0) {
+        pMouse.x = e.clientX;
+        pMouse.y = e.clientY;
+      }
+    });
+
+    function drawPaint(e) {
+      // Desenhar linha do ponto anterior ao atual
+      ctx.beginPath();
+      ctx.moveTo(pMouse.x, pMouse.y);
+      ctx.lineTo(e.clientX, e.clientY);
+      
+      // Estilo do Pincel "Neon"
+      ctx.strokeStyle = `hsl(${hue}, 100%, 60%)`;
+      ctx.lineWidth = 60; // Largura grossa para parecer mancha/tinta
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      // Glow Effect
+      ctx.shadowBlur = 25;
+      ctx.shadowColor = `hsl(${hue}, 100%, 60%)`;
+      
+      ctx.stroke();
+      
+      // Atualizar posição anterior
+      pMouse.x = e.clientX;
+      pMouse.y = e.clientY;
+      
+      // Ciclar cores
+      hue++;
+      if (hue >= 360) hue = 0;
+    }
+
+    document.addEventListener('mousemove', drawPaint);
+
+    // Loop de Animação para o Fade (Efeito de tinta secando/sumindo)
+    function animatePaint() {
+      // Desenhar retângulo preto quase transparente para criar o rastro (trail)
+      // "destination-out" ou desenhar preto por cima. 
+      // Como o canvas tem mix-blend-mode screen, desenhar preto "apaga" o brilho.
+      
+      ctx.shadowBlur = 0; // Desligar glow para o clear
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; // Quanto menor o alpha, maior o rastro
+      ctx.fillRect(0, 0, paintWidth, paintHeight);
+      
+      // Reset para desenhar linhas normais
+      ctx.globalCompositeOperation = 'lighter'; 
+      
+      requestAnimationFrame(animatePaint);
+    }
+
+    animatePaint();
 
   </script>
 </body>
 </html>
-    
